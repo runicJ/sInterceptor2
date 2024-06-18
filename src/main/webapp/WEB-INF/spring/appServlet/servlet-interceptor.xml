@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- web.xml에 등록해야 함
+	<param-value> servlet-context과 동급 처리 수행후에 얘도 수행
+		/WEB-INF/spring/appServlet/servlet-context.xml,
+		/WEB-INF/spring/appServlet/servlet-interceptor.xml				
+	</param-value>
+	-->
+	
+	<!-- Interceptor 설정(정의) 가장 관대한 순 -> 폐쇄적인 순 -->
+	<beans:bean id="Level99Interceptor" class="com.spring.sInterceptor2.interceptor.Level99Interceptor" />
+	<beans:bean id="Level3Interceptor" class="com.spring.sInterceptor2.interceptor.Level3Interceptor" />
+	<beans:bean id="Level2Interceptor" class="com.spring.sInterceptor2.interceptor.Level2Interceptor" />
+	<beans:bean id="Level0Interceptor" class="com.spring.sInterceptor2.interceptor.Level0Interceptor" />
+	
+	<interceptors>
+		<interceptor>
+			<!-- /**만 하면 회원가입, 로그인, 닉네임체크 등도 적용됨(/도 마찬가지) -->
+			<!-- 비회원 처리 -->
+			<mapping path="/**"/>
+			<exclude-mapping path="/"/>
+			<exclude-mapping path="/h"/>
+			<exclude-mapping path="/member/login"/>
+			<exclude-mapping path="/member/logout"/>
+			<exclude-mapping path="/message/logout"/>
+			<exclude-mapping path="/member/join"/>
+			<exclude-mapping path="/member/joinOk"/>
+			<exclude-mapping path="/message/joinOk"/>
+			<exclude-mapping path="/member/idCheck"/>
+			<exclude-mapping path="/member/nickCheck"/>
+			<exclude-mapping path="/guest/guestList"/>
+			<exclude-mapping path="/message/hoewonNo"/>
+<!-- <exclude-mapping path="/message/**"/> -->
+			<beans:ref bean="Level99Interceptor" />
+		</interceptor>
+	</interceptors>
+	
+	<interceptors>
+		<interceptor>
+			<!-- 준회원 처리 -->
+			<!-- 영향 받는 것을 먼저 적어줌 -->
+			<mapping path="/board/**"/>
+			<mapping path="/pds/**"/>
+			<!-- 제외 해야하는 것 적어줌 -->
+			<exclude-mapping path="/board/boardList"/>
+			<beans:ref bean="Level3Interceptor" />
+		</interceptor>
+	</interceptors>
+	
+	<interceptors>
+		<interceptor>
+			<!-- 정회원 처리 -->
+			<!-- 영향 받는 것을 먼저 적어줌 -->
+			<mapping path="/pds/**"/>
+			<!-- 제외 해야하는 것 적어줌 -->
+			<exclude-mapping path="/pds/pdsList"/>
+			<exclude-mapping path="/pds/pdsDownload"/>
+			<beans:ref bean="Level2Interceptor" />
+		</interceptor>
+	</interceptors>
+
+	<interceptors>
+		<interceptor>
+			<!-- 관리자 처리 -->
+			<mapping path="/admin/**"/>
+			<beans:ref bean="Level99Interceptor" />
+		</interceptor>
+	</interceptors>
+	
+</beans:beans>
